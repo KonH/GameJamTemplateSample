@@ -67,8 +67,7 @@ class TemplateBuild(
 
     triggers {
         vcs {
-            triggerRules = "+:<default>"
-            branchFilter = ""
+            branchFilter = "+:<default>"
         }
     }
 })
