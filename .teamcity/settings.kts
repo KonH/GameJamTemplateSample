@@ -27,12 +27,23 @@ To debug in IntelliJ Idea, open the 'Maven Projects' tool window (View
 version = "2020.2"
 
 project {
+    val enablePublish = true
+    val publishUser = "konh"
+    val publishProject = "gamejamtemplatesample"
+    val platforms = listOf("WebGL", "StandaloneWindows", "StandaloneOSX")
 
-    buildType(BuildWebGL)
+    platforms.forEach {
+        buildType(TemplateBuild(it, enablePublish, publishUser, publishProject))
+    }
 }
 
-object BuildWebGL : BuildType({
-    name = "Build_WebGL"
+class TemplateBuild(
+        platform: String,
+        enablePublish: Boolean = false,
+        publishUser: String = "",
+        publishProject: String = "",
+        publishChannel: String = "") : BuildType({
+    name = "Build_$platform"
 
     vcs {
         root(DslContext.settingsRoot)
@@ -42,12 +53,15 @@ object BuildWebGL : BuildType({
         exec {
             name = "RunBuild"
             path = "nuke"
-            arguments = "--target RunBuild"
+            arguments = "--target RunBuild --platform $platform"
         }
-        exec {
-            name = "Publish"
-            path = "nuke"
-            arguments = "--target Publish --publishTarget konh/gamejamtemplatesample:html"
+        if (enablePublish) {
+            val channel = detectChannelFromPlatform(platform) ?: publishChannel
+            exec {
+                name = "Publish"
+                path = "nuke"
+                arguments = "--target Publish --publishTarget ${publishUser}/${publishProject}:${channel}"
+            }
         }
     }
 
@@ -58,3 +72,12 @@ object BuildWebGL : BuildType({
         }
     }
 })
+
+fun detectChannelFromPlatform(platform: String): String? {
+    return when (platform) {
+        "WebGL" -> "html"
+        "StandaloneWindows" -> "windows"
+        "StandaloneOSX" -> "mac"
+        else -> null
+    }
+}
