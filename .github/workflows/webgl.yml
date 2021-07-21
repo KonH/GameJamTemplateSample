@@ -15,7 +15,7 @@ jobs:
           lfs: true
       - uses: game-ci/unity-builder@v2
         env:
-          UNITY_LICENSE: none
+          UNITY_LICENSE: ${{ secrets.UNITY_LICENSE }}
         with:
           targetPlatform: WebGL
           buildMethod: UnityCiPipeline.CustomBuildPipeline.RunBuildForVersion
