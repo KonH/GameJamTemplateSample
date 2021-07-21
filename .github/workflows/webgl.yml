@@ -1,0 +1,26 @@
+name: WebGL Build
+
+on:
+  push:
+    branches: [ master ]
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+        with:
+          fetch-depth: 0
+          lfs: true
+      - uses: game-ci/unity-builder@v2
+        env:
+          UNITY_LICENSE: none
+        with:
+          targetPlatform: WebGL
+          buildMethod: UnityCiPipeline.CustomBuildPipeline.RunBuildForVersion
+          customParameters: -buildTarget WebGL -version testVer
+      - uses: actions/upload-artifact@v2
+        with:
+          name: Build
+          path: Build
